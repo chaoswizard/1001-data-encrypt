@@ -80,21 +80,29 @@ LINK32=link.exe
 
 # Name "Encrypt - Win32 Release"
 # Name "Encrypt - Win32 Debug"
+# Begin Group "source"
+
+# PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\Encrypt.c
+SOURCE="..\src\Encrypt.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\XXByteStrm.c
+SOURCE="..\src\XXByteStrm.c"
+# End Source File
+# End Group
+# Begin Group "include"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE="..\src\XXByteStrm.h"
 # End Source File
 # Begin Source File
 
-SOURCE=.\XXByteStrm.h
+SOURCE="..\src\XXtypeDef.h"
 # End Source File
-# Begin Source File
-
-SOURCE=.\XXtypeDef.h
-# End Source File
+# End Group
 # End Target
 # End Project
