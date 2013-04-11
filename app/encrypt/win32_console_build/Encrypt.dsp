@@ -89,12 +89,20 @@ SOURCE="..\src\Encrypt.c"
 # End Source File
 # Begin Source File
 
+SOURCE="..\src\my_mian.c"
+# End Source File
+# Begin Source File
+
 SOURCE="..\src\XXByteStrm.c"
 # End Source File
 # End Group
 # Begin Group "include"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE="..\src\Encrypt.h"
+# End Source File
 # Begin Source File
 
 SOURCE="..\src\macro_pub_define.h"
