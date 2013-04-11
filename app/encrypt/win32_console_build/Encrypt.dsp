@@ -97,6 +97,10 @@ SOURCE="..\src\XXByteStrm.c"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE="\My_Project\1001-data-encrypt\app\encrypt\src\macro_pub_define.h"
+# End Source File
+# Begin Source File
+
 SOURCE="..\src\XXByteStrm.h"
 # End Source File
 # Begin Source File

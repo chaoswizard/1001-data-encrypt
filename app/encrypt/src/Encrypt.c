@@ -1,187 +1,118 @@
-#include "XXByteStrm.h"
-#include "string.h"
-#include "malloc.h"
+#include "Encrypt.h"
 
-#define MY_DEBUG  printf
-
-#if 0
-#define FILE_NAME  "test"
-#define KEY_CODE   "123485"
-#define SHOW_FILE_CMD    ""
-#else
-#define FILE_NAME        argv[1]
-#define KEY_CODE         argv[2]
-#define SHOW_FILE_CMD    argv[3]
-#endif
+#define ENCRPT_DEBUG  printf
 
 #define TMP_FILE_NAME "JM_RTX.txt"
 
-#define MALLOC(size)  malloc(size)
-#define FREE(ptr)     free(ptr)
-
-#define   FILE_READ(fp,buffer,len)	(fp->Read(fp,buffer , 1,len ))
-#define   FILE_WRITE(fp,buffer,len)	(fp->Write(fp,buffer, 1,len ))
-#define   FILE_SEEK_SET(fp,pos)     (fp->Seek(fp,pos,SEEK_SET))
-#define   FILE_SEEK_END(fp,pos)     (fp->Seek(fp,pos,SEEK_END))
-#define   FILE_TELL(fp)             (fp->Tell(fp))
-#define   FILE_CLOSE(fp)            (fp->Close(&fp,TRUE))
-
-
-BOOL Src_Stream_Init(struct BYTESTREAM **srcStrm,char *srcName)
+struct st_byte_stream *encrypt_open(const char *path, char **real_path)
 {
-	struct BYTESTREAM    *srcStream = NULL;
-	int strlength=0;
+	struct st_byte_stream    *strm = NULL;
+	int len = 0;
 	
 	//尝试以文件方式初始化
-	if (Create_ByteStrm(&srcStream,srcName , 0, STRM_FILE_R)) 
+	if (!open_bytestrm(&strm, path, 0, STRM_FILE_R)) 
 	{
-		*srcStrm = srcStream;
-		return TRUE;
+        len = strlen(path);
+        //尝试以写方式打开
+        if(!open_bytestrm(&strm, TMP_FILE_NAME, len, STRM_FILE_W))
+        {
+            return NULL;
+        }
+        else
+        {
+            FILE_SEEK_SET(strm,0);
+            if(len != FILE_WRITE(strm, path, len))
+            {
+                encrypt_close(&strm);
+                return NULL;
+            }
+            else
+            {
+                FILE_SEEK_SET(strm,0);
+            }
+        }
 	} 
-	
-	strlength = strlen(srcName);
-	//尝试以写方式打开
-	if(!Create_ByteStrm(&srcStream,TMP_FILE_NAME, strlength, STRM_FILE_W))
+
+	if (strm->m_Ew)// create
 	{
-		return FALSE;
+		*real_path = TMP_FILE_NAME;
 	}
 	else
 	{
-		FILE_SEEK_SET(srcStream,0);
-		if(strlength != FILE_WRITE(srcStream,srcName,strlength))
-		{
-			FILE_CLOSE(srcStream);
-			return FALSE;
-		}
-		else
-		{
-			FILE_SEEK_SET(srcStream,0);
-			*srcStrm = srcStream;
-			return TRUE;
-		}
+		*real_path = path;
 	}
+
+
+    return strm;
 }
 
 
-//============================
-int main(int argc,char **argv)
+
+
+int encrypt_close(struct st_byte_stream **src_stream)
 {
-	struct BYTESTREAM    *fp=NULL;
-	char *srcName = NULL,*strKey = NULL;
-	unsigned char *keybuffer,*filebuffer; 
-	unsigned int keylen=0,tmp=0,bufferlen=0;
-	long int pos = 0,fileLen = 0;
-	
-	if (FILE_NAME)
-	{
-		if (KEY_CODE)
-		{
-			strKey  = KEY_CODE;
-		}
-		else
-		{
-			MY_DEBUG("Param Er @%d\n",__LINE__);
-			return 0;
-		}
-	}
-	else
-	{
-		MY_DEBUG("Param Er @%d\n",__LINE__);
-		return 0;
-	}
-	
-	if (!Src_Stream_Init(&fp,FILE_NAME))
-	{
-		MY_DEBUG("Init Er @%d\n",__LINE__);
-		return 0;
-	}
-	if (fp->m_Ew)
-	{
-		srcName = TMP_FILE_NAME;
-	}
-	else
-	{
-		srcName = FILE_NAME;
-	}
-	
-	MY_DEBUG("@%s%s @Key: %s\n",
-		fp->m_Ew?"Create":"Open",
-		fp->m_Type?"File:":"String:\n\t",
-		srcName,
-		strKey);
-	//MY_DEBUG("begin...\n");
-	
-	
-	keylen = strlen(KEY_CODE);
-	keybuffer = MALLOC(keylen+1);
-	if (NULL == keybuffer)
-	{
-		MY_DEBUG("Malloc Er @%d\n",__LINE__);
-		FILE_CLOSE(fp); 
-		return 0;	
-	}
-    memcpy(keybuffer,strKey,keylen);
-	
-	filebuffer = MALLOC(keylen+1);
-    if (NULL == filebuffer)
-	{
-		MY_DEBUG("Malloc Er @%d\n",__LINE__);
-		FREE(keybuffer);
-		keybuffer = NULL;
-		FILE_CLOSE(fp); 
-		return 0;	
-	}
-	
-	FILE_SEEK_END(fp,0);
-	fileLen = FILE_TELL(fp);
-	
-	pos = 0;
-	while(pos < fileLen) {
-		FILE_SEEK_SET(fp,pos);
-		tmp = FILE_READ(fp,filebuffer,keylen);
-		//MY_DEBUG("R.(%d %d),[%d %d],%d  ",pos, FILE_TELL(fp),keylen,tmp,fileLen);
-		if (0 == tmp)
-		{
-			bufferlen = 0;
-			break;
-		}
-		else 
-		{
-			bufferlen = tmp;
-		}
-		
-		tmp=0;
-		for (tmp=0;tmp<bufferlen;tmp++)
-		{
-			filebuffer[tmp] ^=keybuffer[tmp];
-		} 
-		FILE_SEEK_SET(fp,pos);
-		tmp = FILE_WRITE(fp,filebuffer,bufferlen);
-		
-		//MY_DEBUG("W.(%d %d),[%d %d],%d\n",pos, FILE_TELL(fp),bufferlen,tmp,fileLen);
-		if (bufferlen != tmp)
-		{
-			break;
-		}
-		pos += tmp;
-	}
+    if (src_stream && *src_stream)
+        FILE_CLOSE(*src_stream);
 
-	FILE_CLOSE(fp); 
-	//MY_DEBUG("\nOk\n");
-	
-	FREE(keybuffer);
-	keybuffer = NULL;
-	FREE(filebuffer);
-	filebuffer = NULL;
-
-	if (SHOW_FILE_CMD)
-	{
-		char cmdbuffer[256];
-		MY_DEBUG("\nShow %s:\n",srcName);
-		sprintf(cmdbuffer,"%s %s",SHOW_FILE_CMD,srcName);
-		system(cmdbuffer);
-		//MY_DEBUG("^_^\n");
-	}
-	
-	return 0;
+    return 0;
 }
+
+
+
+int encrypt_stream(struct st_byte_stream *dest,
+                        struct st_byte_stream *src, long int len,
+                        const char *key_buffer, int key_len)
+{
+	char *src_path = NULL, *encrypt_key_str = NULL;
+	unsigned char *data_buffer; 
+	unsigned int tmp = 0, buffer_len = 0, total_len;
+	long int src_pos = 0, dest_pos = 0;
+
+    total_len = 0;
+	data_buffer = MALLOC(key_len+1);
+    if (NULL == data_buffer)
+	{
+		ENCRPT_DEBUG("Malloc Er @%d\n",__LINE__);
+		return -1;	
+	}
+
+    src_pos  = FILE_TELL(src);
+    dest_pos = FILE_TELL(dest);
+    while(src_pos < len) {
+        FILE_SEEK_SET(src, src_pos);
+        tmp = FILE_READ(src, data_buffer, key_len);
+        //ENCRPT_DEBUG("R.(%d %d),[%d %d],%d  ",src_pos, FILE_TELL(src),key_len,tmp,len);
+        if (0 == tmp)
+        {
+            buffer_len = 0;
+            break;
+        }
+        else 
+        {
+            buffer_len = tmp;
+        }
+        //------------- Encrypt -------------------------------------------
+        tmp=0;
+        for (tmp=0; tmp<buffer_len; tmp++)
+        {
+            data_buffer[tmp] ^= key_buffer[tmp];
+        } 
+        //---------------------------------------------------------------
+        FILE_SEEK_SET(dest, dest_pos);
+        tmp = FILE_WRITE(dest, data_buffer, buffer_len);
+        total_len += tmp;
+        //ENCRPT_DEBUG("W.(%d %d),[%d %d],%d\n",src_pos, FILE_TELL(src),buffer_len,tmp,len);
+        if (buffer_len != tmp)
+        {
+            break;
+        }
+        src_pos  += tmp;
+        dest_pos += tmp;
+    }
+
+	FREE(data_buffer);
+
+    return total_len;
+}
+
+

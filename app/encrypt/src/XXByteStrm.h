@@ -19,7 +19,7 @@
 #define   STRM_FILE_R  0x5/*Read existed File  and Append b101*/
 #define   STRM_FILE_W  0x7/*Create new File and Append b111*/
 
-struct BYTESTREAM {//
+struct st_byte_stream {//
 	union {
 		BYTE  *Array;
 		FILE   *fp;
@@ -34,29 +34,29 @@ struct BYTESTREAM {//
 	FILE *dumpFile;
 
 //-------member interface-----------	
-	void (*ShowAttri)(struct BYTESTREAM *,int line);
-	DWORD (*GetSize)(struct BYTESTREAM *);
-	long (*Tell)(struct BYTESTREAM *);
-	BOOL (*Eof)(struct BYTESTREAM *);
-	void  (*Seek)(struct BYTESTREAM *,long offset, int origin);
+	void (*ShowAttri)(struct st_byte_stream *,int line);
+	DWORD (*GetSize)(struct st_byte_stream *);
+	long (*Tell)(struct st_byte_stream *);
+	BOOL (*Eof)(struct st_byte_stream *);
+	void  (*Seek)(struct st_byte_stream *,long offset, int origin);
 
-	int (*ReadByte)(struct BYTESTREAM *);
-	int (*Read)(struct BYTESTREAM *,void *buffer, int size, int count);
+	int (*ReadByte)(struct st_byte_stream *);
+	int (*Read)(struct st_byte_stream *,void *buffer, int size, int count);
 
-	BOOL  (*PutC)(struct BYTESTREAM *stream,int c);
-	int (*Write)(struct BYTESTREAM *,const void *buffer, int size, int count);
+	BOOL  (*PutC)(struct st_byte_stream *stream,int c);
+	int (*Write)(struct st_byte_stream *,const void *buffer, int size, int count);
 	
-	void  (*Close)(struct BYTESTREAM **,BOOL destoryHandle);
+	void  (*Close)(struct st_byte_stream **,BOOL destoryHandle);
 
-	void (*Dump)(struct BYTESTREAM  *,int length);
-	void  (*InitDumpFile)(struct BYTESTREAM  *,BYTE * name);
-	void  (*CloseDumpFile)(struct BYTESTREAM  *);
+	void (*Dump)(struct st_byte_stream  *,int length);
+	void  (*InitDumpFile)(struct st_byte_stream  *,BYTE * name);
+	void  (*CloseDumpFile)(struct st_byte_stream  *);
 
 };
 ////////////////////////////////////////////////////////////
 
 //create one bytestream,MUST judge the return value,0 means failed else means successful.
-BOOL  Create_ByteStrm(struct BYTESTREAM **stream,void *SrcData,DWORD Size,BYTE mode);
+BOOL  open_bytestrm(struct st_byte_stream **stream,void *src_data_or_path,DWORD capacity, BYTE mode);
 //void Print_HexStrm(FILE *dumpFile,BYTE *SrcData,int length);
 //////////////////////////////////////////////////////////
 

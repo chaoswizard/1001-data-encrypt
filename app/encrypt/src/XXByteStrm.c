@@ -35,25 +35,25 @@
 #define   MASK_STRM_INC  (0x1<<BIT_STRM_INC)
 
 //============= Public  Interface Define =============
-DWORD Stream_GetSize(struct BYTESTREAM  *stream)
+DWORD Stream_GetSize(struct st_byte_stream  *stream)
 {
 	//if (NULL == stream){return 0;}
 	return  stream->m_Size;
 }
 
-long Stream_Tell(struct BYTESTREAM *stream)
+long Stream_Tell(struct st_byte_stream *stream)
 {
 	//if (NULL == stream){return 0;}
 	return stream->m_Position;//(stream->m_Position = ftell(stream->handle.fp));
 }
 
-BOOL Stream_Eof(struct BYTESTREAM *stream)
+BOOL Stream_Eof(struct st_byte_stream *stream)
 {
 	//if (NULL == stream){return TRUE;}
 	return (stream->m_Position >= (long)stream->m_Size);
 }
 
-void  Stream_ShowAttri(struct BYTESTREAM  *stream,int Line)
+void  Stream_ShowAttri(struct st_byte_stream  *stream,int Line)
 {
 	//if (NULL == stream){return;}
 #ifdef STRM_DEBUG
@@ -64,7 +64,7 @@ void  Stream_ShowAttri(struct BYTESTREAM  *stream,int Line)
 #endif
 }
 
-void  Stream_InitDumpFile(struct BYTESTREAM  *stream,BYTE * name)
+void  Stream_InitDumpFile(struct st_byte_stream  *stream,BYTE * name)
 {
 	char DumpFileName[32];
 
@@ -83,7 +83,7 @@ void  Stream_InitDumpFile(struct BYTESTREAM  *stream,BYTE * name)
 	}
 }
 
-void  Stream_CloseDumpFile(struct BYTESTREAM  *stream)
+void  Stream_CloseDumpFile(struct st_byte_stream  *stream)
 {
 	//if ((NULL == stream)){return;}
 	if(NULL==stream->dumpFile) {
@@ -94,7 +94,7 @@ void  Stream_CloseDumpFile(struct BYTESTREAM  *stream)
 	}
 }
 
-void Stream_Dump(struct BYTESTREAM  *stream,int length)
+void Stream_Dump(struct st_byte_stream  *stream,int length)
 {
 	BYTE  ch;
 	long curPos = 0,savePos=0;
@@ -188,7 +188,7 @@ void Stream_Dump(struct BYTESTREAM  *stream,int length)
 
 
 //========== Private  Interface Define For File ==========
-void  File_Close(struct BYTESTREAM **  stream,BOOL destoryHandle)
+void  File_Close(struct st_byte_stream **  stream,BOOL destoryHandle)
 {
 	//if (NULL == (*stream)) {return;}
 	
@@ -203,7 +203,7 @@ void  File_Close(struct BYTESTREAM **  stream,BOOL destoryHandle)
 }
 
 
-void File_Seek(struct BYTESTREAM *stream,long offset, int origin)
+void File_Seek(struct st_byte_stream *stream,long offset, int origin)
 {
 	long lNewPos = 0;
 	
@@ -235,7 +235,7 @@ void File_Seek(struct BYTESTREAM *stream,long offset, int origin)
 }
 
 
-int File_ReadByte(struct BYTESTREAM *stream)
+int File_ReadByte(struct st_byte_stream *stream)
 {
 	long  Pos = 0;
 	
@@ -259,7 +259,7 @@ int File_ReadByte(struct BYTESTREAM *stream)
 
 
 
-int File_Read(struct BYTESTREAM *stream,void *buffer, int size, int count)
+int File_Read(struct st_byte_stream *stream,void *buffer, int size, int count)
 {
 	long nCount = 0;
 	long nRead = 0;
@@ -288,7 +288,7 @@ int File_Read(struct BYTESTREAM *stream,void *buffer, int size, int count)
 	return fread(buffer,  1, nRead, stream->handle.fp);//
 }
 
-BOOL  File_PutC(struct BYTESTREAM *stream,int c)
+BOOL  File_PutC(struct st_byte_stream *stream,int c)
 {
 	long  Pos = 0;
 
@@ -311,7 +311,7 @@ BOOL  File_PutC(struct BYTESTREAM *stream,int c)
 }
 
 
-int File_Write(struct BYTESTREAM *stream,const void *buffer, int size, int count)
+int File_Write(struct st_byte_stream *stream,const void *buffer, int size, int count)
 {
 	long nCount = 0;
 	long nWrite = 0;
@@ -340,7 +340,7 @@ int File_Write(struct BYTESTREAM *stream,const void *buffer, int size, int count
 
 //========== Private  Interface Define For Buffer ==========
 
-void  Buf_Close(struct BYTESTREAM **  stream,BOOL destoryHandle)
+void  Buf_Close(struct st_byte_stream **  stream,BOOL destoryHandle)
 {
 	//if (NULL == (*stream)) {return;}
 	
@@ -348,7 +348,7 @@ void  Buf_Close(struct BYTESTREAM **  stream,BOOL destoryHandle)
 	(*stream) = NULL;
 
 }
-void  Buf_Destory(struct BYTESTREAM **  stream,BOOL destoryHandle)
+void  Buf_Destory(struct st_byte_stream **  stream,BOOL destoryHandle)
 {
 	//if (NULL == (*stream)) {return;}
 
@@ -364,7 +364,7 @@ void  Buf_Destory(struct BYTESTREAM **  stream,BOOL destoryHandle)
 }
 
 
-void  Buf_Seek(struct BYTESTREAM *stream,long offset, int origin)
+void  Buf_Seek(struct st_byte_stream *stream,long offset, int origin)
 {
 	long lNewPos = 0;
 
@@ -391,7 +391,7 @@ void  Buf_Seek(struct BYTESTREAM *stream,long offset, int origin)
 }
 
 
-int Buf_ReadByte(struct BYTESTREAM *stream)
+int Buf_ReadByte(struct st_byte_stream *stream)
 {
 	long  Pos = 0;
 
@@ -415,7 +415,7 @@ int Buf_ReadByte(struct BYTESTREAM *stream)
 	return (int)(stream->handle.Array[Pos]);
 }
 
-int Buf_Read(struct BYTESTREAM *stream,void *buffer, int size, int count)
+int Buf_Read(struct st_byte_stream *stream,void *buffer, int size, int count)
 {
 	long nCount = 0;
 	long nRead = 0;
@@ -447,7 +447,7 @@ int Buf_Read(struct BYTESTREAM *stream,void *buffer, int size, int count)
 
 
 
-BOOL  Buf_PutC(struct BYTESTREAM *stream,int c)
+BOOL  Buf_PutC(struct st_byte_stream *stream,int c)
 {
 	long  Pos =  0;
 
@@ -482,7 +482,7 @@ BOOL  Buf_PutC(struct BYTESTREAM *stream,int c)
 }
 
 
-int Buf_Write(struct BYTESTREAM *stream,const void *buffer, int size, int count)
+int Buf_Write(struct st_byte_stream *stream,const void *buffer, int size, int count)
 {
 	long nCount = 0;
 	long  Pos = 0;
@@ -584,14 +584,14 @@ void Print_HexStrm(FILE *dumpFile,BYTE *SrcData,int length)
 #endif
 }
 
-BOOL  Create_ByteStrm(struct BYTESTREAM **stream,void *SrcData,DWORD Size,BYTE mode)
+BOOL  open_bytestrm(struct st_byte_stream **stream,void *src_data_or_path,DWORD capacity, BYTE mode)
 {
 	if (NULL != (*stream)) {
 		STRM_ERROR("Had created\n");
 		return FALSE;
 	}
 
-	(*stream) = (struct BYTESTREAM *)malloc(sizeof (struct BYTESTREAM));
+	(*stream) = (struct st_byte_stream *)malloc(sizeof (struct st_byte_stream));
 
 	if (NULL == (*stream) ) {
 		STRM_ERROR("Create Error\n");
@@ -616,20 +616,20 @@ BOOL  Create_ByteStrm(struct BYTESTREAM **stream,void *SrcData,DWORD Size,BYTE m
 	if (((*stream)->m_Type)) {
 
 		if ((*stream)->m_Ew) {
-			(*stream)->handle.fp = fopen((BYTE *)SrcData,"wb+");//delete old file and create new one
+			(*stream)->handle.fp = fopen((BYTE *)src_data_or_path,"wb+");//delete old file and create new one
 		} else {
-			(*stream)->handle.fp = fopen((BYTE *)SrcData,"rb+");//file must exist 
+			(*stream)->handle.fp = fopen((BYTE *)src_data_or_path,"rb+");//file must exist 
 		}
 		
 		if (NULL == (*stream)->handle.fp) {
-			STRM_ERROR("Cannot open File  %s\n",(BYTE *)SrcData);
+			STRM_ERROR("Cannot open File  %s\n",(BYTE *)src_data_or_path);
 			free((*stream));//>WX<add
 			(*stream) = NULL;//>WX<add
 			return FALSE;
 		} 
 #ifdef STRM_DEBUG
-		if(SrcData) {
-			STRM_ERROR("Create File  %s\n",(BYTE *)SrcData);
+		if(src_data_or_path) {
+			STRM_ERROR("Create File  %s\n",(BYTE *)src_data_or_path);
 		} 
 #endif
 		//stream->m_Size = filelength(stream->handle.fp) ;
@@ -646,19 +646,19 @@ BOOL  Create_ByteStrm(struct BYTESTREAM **stream,void *SrcData,DWORD Size,BYTE m
 		(*stream)->Seek = File_Seek;
 	}  else   {
 	
-		(*stream)->m_Size = Size;
+		(*stream)->m_Size = capacity;
 		if ((*stream)->m_Einc) {
 			if ((*stream)->m_Size > 0) {
-				(*stream)->handle.Array =  (BYTE*)malloc(Size);
+				(*stream)->handle.Array =  (BYTE*)malloc(capacity);
 				if (NULL != ((*stream)->handle.Array)) {
-					memset(((*stream)->handle.Array),0,Size);
+					memset(((*stream)->handle.Array),0,capacity);
 				}
 			} else {
 				(*stream)->handle.Array = NULL;
 			}
 			(*stream)->Close =Buf_Destory;
 		} else {
-			(*stream)->handle.Array =  (BYTE *)(SrcData);
+			(*stream)->handle.Array =  (BYTE *)(src_data_or_path);
 			(*stream)->Close =Buf_Close;
 		}
 
@@ -673,8 +673,8 @@ BOOL  Create_ByteStrm(struct BYTESTREAM **stream,void *SrcData,DWORD Size,BYTE m
 		}
 
 #ifdef STRM_DEBUG
-		if (SrcData) {
-			STRM_ERROR("Create Array  %02X\n",((BYTE *)SrcData)[0]);
+		if (src_data_or_path) {
+			STRM_ERROR("Create Array  %02X\n",((BYTE *)src_data_or_path)[0]);
 		} else {
 			STRM_ERROR("Create Array_Empty\n");
 		}
