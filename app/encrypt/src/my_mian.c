@@ -2,11 +2,12 @@
 
 // if test
 #if 0
-#define FILE_NAME  "test"
+#define SRC_FILE_PATH  "test"
 #define KEY_CODE   "123485"
 #define SHOW_FILE_CMD    ""
 #else
-#define FILE_NAME        argv[1]
+#define SRC_FILE_PATH    argv[1]
+#define DST_FILE_PATH    argv[1]
 #define KEY_CODE         argv[2]
 #define SHOW_FILE_CMD    argv[3]
 #endif
@@ -22,7 +23,7 @@ int main(int argc,char **argv)
 	unsigned int key_len = 0;
 	long int file_len = 0;
 	
-	if (FILE_NAME)
+	if (SRC_FILE_PATH)
 	{
 		if (KEY_CODE)
 		{
@@ -40,7 +41,7 @@ int main(int argc,char **argv)
 		return 0;
 	}
 
-    src = encrypt_open(FILE_NAME, &src_path);
+    src = encrypt_open(SRC_FILE_PATH, &src_path);
 	if (!src)
 	{
 		MY_DEBUG("Init Er @%d\n",__LINE__);
